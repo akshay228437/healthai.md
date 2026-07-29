@@ -1,3 +1,6 @@
+Here's a basic visual preview of your flowchart in a simplified layout:
+
+```text
 ┌────────────────────────────────────────────────────────────────────────────┐
 │              1. Continuous Integration & Artifact Build                    │
 └────────────────────────────────────────────────────────────────────────────┘
@@ -90,3 +93,34 @@ Block Merge                │
         ▼                           ▼
 Terminate Canary Pods      Old Pods Finish
 Restore Stable Release     Sessions Gracefully
+```
+
+Overall flow:
+
+```text
+Developer
+    │
+    ▼
+ CI Pipeline
+    │
+    ▼
+ Build & Push Image
+    │
+    ▼
+ Argo CD
+    │
+    ▼
+10% Canary
+    │
+    ▼
+Session Draining
+    │
+    ▼
+Telemetry Analysis
+    │
+ ┌──┴──┐
+ ▼     ▼
+Rollback  Promote
+```
+
+This layout closely matches your Mermaid diagram while making the four stages and the decision points easier to visualize in plain text.
