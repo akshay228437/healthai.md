@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2Care.ai — Live Interview Simulation</title>
+<style>
+:root{
+  --ink:#101820;
+  --panel:#161f29;
+  --panel-2:#1c2733;
+  --line:#2b3844;
+  --text:#e6e9ec;
+  --text-dim:#8fa0ac;
+  --amber:#e0a248;
+  --amber-dim:#8a6a3a;
+  --teal:#5fb8ab;
+  --red:#d9705f;
+  --mono: 'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+  --sans: 'Inter','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--ink);color:var(--text);font-family:var(--sans);}
+body{padding:0 0 80px 0;}
+
+.top{
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(180deg,var(--ink) 85%,transparent);
+  border-bottom:1px solid var(--line);
+  padding:22px 28px 14px 28px;
+}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--amber);display:flex;align-items:center;gap:8px;margin-bottom:6px;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber);animation:pulse 2.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+h1{font-family:var(--mono);font-size:22px;font-weight:600;margin:0 0 4px 0;letter-spacing:-0.01em;}
+.sub{color:var(--text-dim);font-size:13.5px;max-width:760px;line-height:1.5;margin-bottom:16px;}
+
+.tabs{display:flex;flex-wrap:wrap;gap:6px;}
+.tab{
+  font-family:var(--mono);font-size:12px;padding:8px 13px;border-radius:6px;
+  border:1px solid var(--line);background:var(--panel);color:var(--text-dim);
+  cursor:pointer;white-space:nowrap;transition:.15s;
+}
+.tab:hover{border-color:var(--amber-dim);color:var(--text);}
+.tab.active{background:var(--amber);color:#1a1206;border-color:var(--amber);font-weight:600;}
+
+main{max-width:880px;margin:0 auto;padding:26px 24px 0 24px;}
+.panel-head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:22px;
+}
+.panel-title{font-family:var(--mono);font-size:15px;color:var(--text);}
+.panel-count{font-family:var(--mono);font-size:11px;color:var(--text-dim);}
+
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:18px 20px;margin-bottom:16px;
+}
+.card-top{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;}
+.sev{
+  font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:4px;
+  flex-shrink:0;margin-top:2px;letter-spacing:.05em;
+}
+.sev.core{background:rgba(95,184,171,.15);color:var(--teal);border:1px solid rgba(95,184,171,.3);}
+.sev.probe{background:rgba(224,162,72,.15);color:var(--amber);border:1px solid rgba(224,162,72,.3);}
+.sev.curve{background:rgba(217,112,95,.15);color:var(--red);border:1px solid rgba(217,112,95,.3);}
+.q{font-size:15px;line-height:1.5;font-weight:600;color:var(--text);}
+.why{font-size:12.5px;color:var(--text-dim);margin:6px 0 14px 0;line-height:1.5;font-style:italic;}
+
+details{
+  border-top:1px dashed var(--line);padding-top:10px;margin-top:10px;
+}
+summary{
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--teal);cursor:pointer;user-select:none;list-style:none;
+}
+summary::-webkit-details-marker{display:none;}
+summary::before{content:'▸ ';}
+details[open] summary::before{content:'▾ ';}
+.body-text{font-size:13.5px;line-height:1.6;color:#d3d8db;padding:10px 2px 4px 2px;}
+.body-text b{color:var(--text);}
+.redflag{border-top:1px dashed var(--line);padding-top:10px;margin-top:10px;}
+.redflag summary{color:var(--red);}
+
+.legend{
+  display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;
+  font-family:var(--mono);font-size:11px;color:var(--text-dim);
+}
+.legend span b{color:var(--text);}
+
+footer{
+  max-width:880px;margin:30px auto 0 auto;padding:18px 24px;
+  border-top:1px solid var(--line);color:var(--text-dim);font-size:12px;line-height:1.6;
+  font-family:var(--mono);
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="eyebrow"><span class="dot"></span> LIVE ROUND — SIMULATION MODE</div>
+  <h1>2Care.ai Platform Engineer — Interview Simulation</h1>
+  <div class="sub">
+    Grounded in the candidate's actual submission and diagrams — not generic DevOps trivia. Calibrated for
+    ~4 years of experience: expects solid systems/k8s/terraform fundamentals and the ability to reason under
+    a changed constraint, not staff-level omniscience. Each card: the question as it would actually be asked,
+    why it's being asked, what a strong answer sounds like, and the red flag to listen for.
+  </div>
+  <div class="tabs" id="tabbar"></div>
+</div>
+
+<main>
+  <div class="legend">
+    <span><b>●</b> core — baseline competence check</span>
+    <span><b>●</b> probe — tests depth beyond what they wrote</span>
+    <span><b>●</b> curveball — constraint changed live, per the brief's own format</span>
+  </div>
+  <div id="content"></div>
+</main>
+
+<footer>
+  reference: 2careAi.pdf submission + Agent_Layout.drawio / cicd.drawio / highlevelarchitecture.drawio<br>
+  format: 60-minute deep dive — expect ~4-5 min per topic area, leave 10 min for curveballs
+</footer>
+
+<script>
+const DATA = [
+{
+  id:"stack", label:"1 · The Stack",
+  items:[
+    {sev:"core", q:"You picked Bedrock over calling OpenAI or Anthropic directly. Say a customer insists on GPT-4o for one narrow workflow — sentiment tagging on chat transcripts, no PHI in that specific call. Does your architecture allow that, or is Bedrock a hard wall?",
+      why:"Tests whether the 'no direct APIs' rule is a real architectural decision or a memorized talking point.",
+      answer:"A strong answer doesn't treat it as all-or-nothing. It's fine in principle to carve out a narrow, explicitly-scoped path outside the VPC boundary for a call that's provably PHI-free — but that requires an upstream data-classification step that <b>guarantees</b> the call is clean, and building that guarantee is the hard part, not the exception itself. Absent that guarantee, the safer default stays 'everything through Bedrock,' and the candidate should say why, not just assert it.",
+      followup:"How would you prove to an auditor that a specific call truly carried zero PHI?",
+      redflag:"Says 'just don't put PHI in the prompt' with no verification mechanism, or treats it as a pure policy question with no technical control behind it."
+    },
+    {sev:"probe", q:"Why LangGraph instead of hand-rolling the state machine yourself? You've built stateful services before — what does the framework actually buy you that your own code wouldn't?",
+      why:"Checks whether they adopted a framework for real reasons or because it's the trendy default.",
+      answer:"Checkpointing, resumability, and retry semantics come for free, plus a shared abstraction the rest of the team can extend without re-implementing persistence each time. A strong candidate also names the cost: framework lock-in, a debugging layer between them and the actual state transitions, and a learning curve for anyone joining the team.",
+      followup:"—",
+      redflag:"Can't name a single downside of adopting the framework — a pure marketing answer."
+    },
+    {sev:"core", q:"Your doc says model routing 'avoids vendor lock-in.' But you also made Bedrock the single mandatory gateway. Isn't Bedrock itself the lock-in?",
+      why:"Tests whether they actually understand the distinction they wrote, or just reused a phrase.",
+      answer:"Two different lock-ins: Bedrock avoids being pinned to one <i>foundation model</i> (can swap Claude/Llama/etc behind the router), but doesn't avoid being pinned to <i>AWS as a cloud</i>. The written claim only solves the first, and a good candidate says so unprompted rather than defending it as if it solved both.",
+      followup:"—",
+      redflag:"Doesn't see the distinction; defends the claim as written without nuance."
+    },
+    {sev:"probe", q:"Redis holds active conversational context. Walk me through exactly what a patient experiences if Redis has an outage mid-call.",
+      why:"Forces concrete reasoning about a real single point of failure in their own design.",
+      answer:"If the turn-checkpoint write to Redis fails, either the write is silently dropped (risk: context loss on a subsequent pod failover) or there's a fallback write path — most likely to DynamoDB directly, accepting slightly higher latency. A strong answer proposes the fallback explicitly rather than assuming Redis 'just doesn't go down.'",
+      followup:"—",
+      redflag:"Hasn't considered this failure mode at all."
+    }
+  ]
+},
+{
+  id:"runtime", label:"2 · Runtime & Harness",
+  items:[
+    {sev:"core", q:"Your gate is '98% eval accuracy' across ~100 synthetic scenarios. Concretely — what makes a single scenario a pass or a fail, and who or what decides that?",
+      why:"98% is a meaningless number without a defined rubric — tests whether they know that.",
+      answer:"Needs a defined grading mechanism: likely an LLM-judge or rule-based grader checking for the correct EHR action, no unsafe clinical claim, and appropriate escalation behavior, scored against a golden reference per scenario. A strong candidate volunteers that the number is only as good as the rubric behind it.",
+      followup:"—",
+      redflag:"Cites the number with no idea how it's actually computed."
+    },
+    {sev:"probe", q:"Session grace period is 900 seconds. A call has already run 14 minutes when a deploy kicks off, and the patient keeps talking past minute 15. What happens to them?",
+      why:"Real edge case sitting right at the boundary of their own stated session-length assumption.",
+      answer:"This is a genuine gap worth naming rather than hand-waving: options are extending the grace window dynamically, prompting the agent to wrap up around minute 14 on a pod slated for termination, or accepting it as a known, monitored edge case with a metric tracking how often it fires. A strong answer picks one and defends it.",
+      followup:"—",
+      redflag:"Claims this 'can't happen' or has no mitigation."
+    },
+    {sev:"core", q:"Canary rollback triggers above 0.5% HTTP/WS 5xx. At a 10% canary of 500 concurrent calls, roughly how many actual failed calls does that threshold represent — and is that a good number for a patient-facing system?",
+      why:"Basic quantitative reasoning check — a real DevOps interview staple, made specific to their own numbers.",
+      answer:"10% of 500 = 50 concurrent canary calls; 0.5% of that is a very small absolute count. A strong candidate does the arithmetic out loud, and then reasons about whether that's too sensitive (rollback on statistical noise) or not sensitive enough given patient-safety stakes — and says this needs real production baselining, not an arbitrary round number.",
+      followup:"—",
+      redflag:"Can't do the arithmetic, or treats the percentage as self-evidently correct."
+    },
+    {sev:"probe", q:"Your CI/CD diagram names tfsec and Checkov scanning Terraform PRs. Give me one real rule category those catch, and tell me what happens when one of them blocks an urgent hotfix on a false positive.",
+      why:"Diagram added detail the prose didn't have — checking it's real knowledge, not decoration.",
+      answer:"Real categories: public S3 bucket access, unencrypted EBS/RDS volumes, overly broad IAM policy resource ARNs. For false positives: a documented suppression/waiver requiring a second approver's sign-off, logged and time-boxed — not a silent override by whoever's blocked.",
+      followup:"—",
+      redflag:"No concrete rule example, or says false positives should just be manually bypassed."
+    }
+  ]
+},
+{
+  id:"safety", label:"3 · Safety & Compliance", featured:true,
+  items:[
+    {sev:"probe", q:"Tenants are isolated with per-tenant KMS keys and IAM scoping in a shared cluster. Give me a concrete failure mode where that logical isolation actually breaks — a real bug class, not a hypothetical.",
+      why:"This was the weakest section of the written submission. Push here hardest.",
+      answer:"Real examples: a shared cache key missing the tenant_id prefix causing tenant B to read tenant A's cached response; an IAM policy with a wildcarded resource ARN accidentally matching more than one tenant's KMS key; or a noisy-neighbor resource-exhaustion issue on shared compute — not a data leak, but a cross-tenant availability impact, which the design as written doesn't address at all.",
+      followup:"—",
+      redflag:"Can only restate the design ('KMS keys keep them separate') without naming an actual way it fails."
+    },
+    {sev:"probe", q:"An auditor asks you to prove, right now, that Tenant A's data was never accessible via Tenant B's IAM role over the last 90 days. Walk me through exactly what you pull up.",
+      why:"Directly tests the 'prove it to an auditor' requirement the brief explicitly asked for.",
+      answer:"CloudTrail filtered by resource ARN and KMS key usage per tenant, cross-referenced with IAM Access Analyzer findings, queried against the immutable audit log (S3 + Object Lock) by tenant_id. Critically: this needs to be a <b>pre-built, tested query</b> ready to run — not something assembled live during an actual audit.",
+      followup:"—",
+      redflag:"Vague 'we have logging somewhere' with no retrieval path."
+    },
+    {sev:"core", q:"Bedrock's BAA covers zero-retention for model training. Does that cover a LangSmith or Langfuse trace that happens to contain PHI in the prompt?",
+      why:"Directly tests whether they understand their own written answer or just wrote the words.",
+      answer:"No — tracing tools are a separate compliance surface from the model call itself. PHI needs to be redacted <b>before</b> a trace leaves the VPC or reaches a third-party SaaS dashboard. This is exactly the kind of place AWS's controls don't cover you on their own, which the brief explicitly asks candidates to identify.",
+      followup:"—",
+      redflag:"Assumes Bedrock's BAA blankets every downstream tool automatically."
+    },
+    {sev:"curve", q:"New constraint: tomorrow we sign a customer that legally requires single-tenant physical isolation — separate AWS account, not just a namespace. What in your Terraform structure has to change, concretely, and what stays the same?",
+      why:"Directly maps to their own closing paragraph's stated overrule condition — tests whether it's a real answer or just a sentence they wrote.",
+      answer:"Terragrunt modules stay the same and get parameterized with account-scoped provider config; add a new environment tier (e.g. tenant-<name>) alongside dev/staging/prod; a fresh EKS cluster deploys into the new account off the existing module, not a rewrite. Shared modules (network baseline, IAM guardrails) are reused, not rebuilt.",
+      followup:"—",
+      redflag:"Treats this as requiring a full redesign rather than an extension of the existing module structure."
+    }
+  ]
+},
+{
+  id:"observability", label:"4 · Observability",
+  items:[
+    {sev:"probe", q:"'Silent fallback rate > 2%' is one of your canary rollback triggers — but it's not on your steady-state 2am page list. Should it be?",
+      why:"Tests independent judgment vs. reciting the document.",
+      answer:"Worth a real opinion either way: arguably yes, because a silent fallback during normal operation (not just during a canary) could mean patients are quietly being routed to failure without anyone noticing — that's arguably worse outside a canary window, where at least someone's watching closely. A strong candidate defends a position rather than repeating the doc verbatim.",
+      followup:"—",
+      redflag:"No independent opinion, just restates what's written."
+    },
+    {sev:"core", q:"Who or what actually computes 'hallucination score' for every conversation, in real time?",
+      why:"Checks whether the metric is a real, costed mechanism or an aspirational bullet point.",
+      answer:"Realistically an async LLM-judge scoring transcripts after the fact — not inline, since blocking every turn on a second model call adds real latency — and likely sampled rather than run on 100% of conversations for cost reasons. Same rubric problem as the eval-gate question in Section 2.",
+      followup:"—",
+      redflag:"Assumes it's free and instantaneous with no design behind it."
+    }
+  ]
+},
+{
+  id:"cost", label:"5 · Cost",
+  items:[
+    {sev:"probe", q:"Model routing (cheap model for FAQ, frontier model for clinical reasoning) is your biggest cost lever. What's the actual failure mode of a bad router — a case where the cheap model gets used somewhere it shouldn't — and what's the blast radius?",
+      why:"Tests whether cost optimization is understood as also a safety lever, not purely financial.",
+      answer:"Example: router misclassifies a medication-dosage question as 'simple FAQ,' and the weaker model gives a confidently wrong answer. Blast radius is a patient-safety incident, not just a cost miss — so router accuracy needs its own eval and monitoring, tying this back to Sections 2 and 3 rather than living in a cost silo.",
+      followup:"—",
+      redflag:"Treats routing purely as a cost decision with no risk-side consideration."
+    },
+    {sev:"curve", q:"Give me an order-of-magnitude monthly Bedrock cost estimate at your stated scale — 500 concurrent voice, 5,000 chat sessions/min. Doesn't need to be exact — walk me through how you'd even start.",
+      why:"Tests quantitative estimation under ambiguity, a real day-to-day skill.",
+      answer:"Structure: average session duration × concurrency → total session-minutes/day; turns per session × tokens per turn → total tokens; multiply by per-1k-token pricing for the routed model mix. Should acknowledge wide uncertainty and say they'd instrument early in production and calibrate against real usage rather than trust the spreadsheet.",
+      followup:"—",
+      redflag:"Can't structure the estimation at all, or states a number with no visible reasoning path."
+    }
+  ]
+},
+{
+  id:"automation", label:"6 · Automation",
+  items:[
+    {sev:"core", q:"Your synthetic pipeline auto-fails a PR if guardrail compliance drops below 100%. Isn't that one flaky test away from blocking every release? How do you keep engineers from just learning to ignore the gate?",
+      why:"Tests whether the automation proposal considered its own failure mode.",
+      answer:"Needs deterministic, seeded personas to reduce flakiness; a rerun step to distinguish a real regression from test noise before hard-failing; and — per their own submission's stated approach to detecting degradation — monitoring the gate's own false-positive rate over time as a first-class metric.",
+      followup:"—",
+      redflag:"No plan for flakiness; assumes the eval harness is always deterministic."
+    },
+    {sev:"probe", q:"Who actually writes and maintains the 50+ synthetic patient personas, and how do you know when they're stale?",
+      why:"Ongoing-maintenance question — automations aren't 'ship and forget.'",
+      answer:"Needs a named owner (platform/eval team, ideally with clinical review input) and a cadence tied to real production incidents — if a failure class reaches production the personas should have caught, that's the trigger to expand the set, reviewed on a set schedule, not left to drift.",
+      followup:"—",
+      redflag:"Treats the persona set as a static, one-time build."
+    }
+  ]
+},
+{
+  id:"improvement", label:"7 · Continuous Improvement",
+  items:[
+    {sev:"curve", q:"Week 1-2 is 'establish baseline, no changes shipped.' Say the week 1 baseline already shows an unacceptable human-escalation rate. Do you really wait two weeks to act?",
+      why:"Tests whether a stated process is understood as a rigid rule or a default with an escape hatch.",
+      answer:"No — safety issues get an emergency fix path regardless of the baseline window. The 1-2 week baseline exists to inform <i>planned</i> optimization decisions, not to gate an urgent safety fix. A strong candidate draws that line clearly and unprompted.",
+      followup:"—",
+      redflag:"Rigidly defends the two-week wait as an unconditional rule."
+    }
+  ]
+},
+{
+  id:"diagrams", label:"8 · Diagrams",
+  items:[
+    {sev:"probe", q:"In your agent-layout diagram, the response from Foundation Models routes straight back to LangGraph, bypassing the Custom Model Router entirely. Intentional, or an oversight?",
+      why:"Checks whether they can reason about their own diagram live rather than getting defensive.",
+      answer:"Either answer is fine if defended: e.g. 'intentional — the router only needs to pick the model on the way out, the response doesn't need re-routing' is a legitimate design stance. What matters is engaging with the question rather than denying the discrepancy exists.",
+      followup:"—",
+      redflag:"Denies the discrepancy after being shown the diagram, or has no real answer either way."
+    },
+    {sev:"core", q:"None of your three diagrams shows the tenant-isolation boundary. If you sketched a fourth one just for that, what's in it?",
+      why:"Tests the ability to translate the written Section 3 answer into a visual — a core platform-engineering skill.",
+      answer:"Should describe: a VPC boundary per environment, namespace boundaries within the shared EKS cluster, a per-tenant KMS key annotated at each data store, IAM role boundaries at the request-entry point, and NetworkPolicy denial lines between namespaces. Essentially their Section 3 prose, redrawn.",
+      followup:"—",
+      redflag:"Can't describe what such a diagram would even contain."
+    }
+  ]
+}
+];
+
+const tabbar = document.getElementById('tabbar');
+const content = document.getElementById('content');
+
+function renderTabs(activeId){
+  tabbar.innerHTML = DATA.map(t =>
+    `<button class="tab ${t.id===activeId?'active':''}" data-id="${t.id}">${t.label}${t.featured?' ⚠':''}</button>`
+  ).join('');
+  tabbar.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click', ()=> renderPanel(btn.dataset.id));
+  });
+}
+
+function renderPanel(id){
+  const section = DATA.find(t=>t.id===id);
+  renderTabs(id);
+  content.innerHTML = `
+    <div class="panel-head">
+      <div class="panel-title">${section.label}</div>
+      <div class="panel-count">${section.items.length} question${section.items.length>1?'s':''}</div>
+    </div>
+    ${section.items.map(item => `
+      <div class="card">
+        <div class="card-top">
+          <span class="sev ${item.sev}">${item.sev.toUpperCase()}</span>
+          <div>
+            <div class="q">"${item.q}"</div>
+            <div class="why">${item.why}</div>
+          </div>
+        </div>
+        <details>
+          <summary>Strong 4-YOE answer</summary>
+          <div class="body-text">${item.answer}</div>
+        </details>
+        ${item.followup && item.followup !== "—" ? `
+        <details>
+          <summary>Natural follow-up</summary>
+          <div class="body-text">${item.followup}</div>
+        </details>` : ''}
+        <details class="redflag">
+          <summary>Red flag</summary>
+          <div class="body-text">${item.redflag}</div>
+        </details>
+      </div>
+    `).join('')}
+  `;
+}
+
+renderPanel('stack');
+</script>
+</body>
+</html>
